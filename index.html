@@ -1,0 +1,35 @@
+<?php
+    $first_name = $_GET['first_name'];
+    $last_name = $_GET['last_name'];
+    $age = $_GET{'age'};
+    $name = $first_name . '' . $last_name;
+
+    if ( $age >= 18 ) {
+        $message = 'I am old enough to vote in the United States.';
+    }
+
+    if ( $age < 18 ) {
+        $message = 'I am not old enoug to vote in the United States.';
+    }
+?>
+<!DOCTYPE html>
+<html lang= "en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name= "viewport" content="width=device-width, intial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <form method='GET'>
+            <label>First name: </label>
+            <input type="text" name="first_name"/><br>
+            <label>Last name: </label>
+            <input type="text" name="last_name"/><br>
+            <label>Age: </label>
+            <input type="text" name="age"/><br>
+            <label>&nsbp;</label>
+            <input type="submit" value="Submit"/>
+        </form>
+        <p>Hello my name is, <?php echo htmlspecialchars($name); ?> </p>
+    </body>
+</html>
