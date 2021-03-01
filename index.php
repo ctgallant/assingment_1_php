@@ -1,19 +1,47 @@
-<?php
-require('database.php');
+<?php 
 
+$dsn = 'mysql:host=localhost;dbname=todolist';
+    $username = 'host';
+    //$password = 'password';
 
-$query = 'SELECT customerID, emailAddress, firstName, lastName, line1, city, state, zipCode, phone
-FROM customers
-	INNER JOIN addresses
-	ON customers.customerID = addresses.customerID
-ORDER BY customerID
-GROUP BY customerID, emailAddress, firstName, lastName, line1, city, state, zipCode, phone;';
+    try {
+        $db = new PDO($dsn, $username);
+        //$db = new PDO($dsn, $username, $password);
+    } 
+    catch (PDOException $e) {
+        $error_message = "Database Error: ";
+        $error_message .= $e->getMessage();
+        include('error.php');
+        
+    exit();
+    }
 
-$statement = $db->prepare($query);
-$statement->execute();
-$customers = $statement->fetchAll();
-$statement->closeCursor(); 
+    $query = 'SELECT * FROM todoitems ORDER BY ItemNum';
+    $statement = $db->prepare($query);
+    $statement->execute();
+    $todoitems = $statement->fetchAll();
+    $statement->closeCursor();
 
+    $item_num = filter_input(INPUT_POST, 'item_num', FILTER_VALIDATE_INT);
+
+    if ($item_num) {
+        $query = 'DELETE FROM todoitems 
+                  WHERE ItemNum = :item_num';
+        $statement = $db->prepare($query);
+        $statement->bindValue(':item_num', $item_num);
+        $success = $statement->execute();
+        $statement->closeCursor(); 
+    }  
+
+    $query = 'INSERT INTO todoitems 
+    (Title, Description)
+            VALUES
+    (:title, :descr)';
+    $statement = $db->prepare($query);
+    $statement->bindValue(':title', $title);
+    $statement->bindValue(':descr', $description);
+    $statement->execute();
+    $statement->closeCursor();
 ?>
 
 <!DOCTYPE html>
@@ -21,31 +49,36 @@ $statement->closeCursor();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Guitar Shop Customers</title>
-    <link rel="stylesheet" href="css/main.css">
+    <title>ToDo List Assignment</title> 
 </head>
 
-<!-- the body section -->
 <body>
-    <header><h1>Customer List</h1></header>
-    <main>
-        <section>
-            <?php foreach ($customers as $customer) : ?>
-                <p><span class="bold">CustID:</span> <?php echo $customer['customerID']; ?></p>
-                <p><span class="bold">Email:</span> <?php echo $customer['emailAddress']; ?></p>
-                <p><span class="bold">FirstName:</span> <?php echo $customer['firstName']; ?></p>
-                <p><span class="bold">LastName:</span> <?php echo $customer['lastName']; ?></p>
-                <p><span class="bold">Address:</span> <?php echo $customer['line1']; ?></p>
-                <p><span class="bold">City:</span> <?php echo $customer['city']; ?></p>
-                <p><span class="bold">State:</span> <?php echo $customer['state']; ?></p>
-                <p><span class="bold">ZipCode:</span> <?php echo $customer['zipCode']; ?></p>
-                <p><span class="bold">Phone:</span> <?php echo $customer['phone']; ?></p>
-                <br>
-            <?php endforeach; ?>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; <?php echo date("Y"); ?> My Guitar Shop, Inc.</p>
-    </footer>
+    <h1>ToDo List</h1>
+<div>
+    <?php if(!empty($todoitems)) { ?>
+    <?php foreach ($todoitems as $item) : ?>
+</div>
+
+<div>
+    <p><?php echo $item['Title']; ?></p>
+    <p><?php echo $item['Description']; ?></p>
+</div>
+
+<div>
+    <form method="post">
+        <input type="hidden" name="item_num" value="<?php echo $item['ItemNum']; ?>">
+        <button>❌</button>
+    </form>    
+</div>
+
+<div>
+    <form method="post">
+            <label>Title:</label>
+                <input type="text" name="title" maxlength="20" placeholder="Title" required>
+            <label>Description:</label>
+                <input type="text" name="description" maxlength="50" placeholder="Description" required>
+            <button class="add-button bold">Add<br>Item</button>
+    </form>   
+</div>
 </body>
 </html>
