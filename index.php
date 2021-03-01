@@ -1,20 +1,6 @@
 <?php 
 
-$dsn = 'mysql:host=localhost;dbname=todolist';
-    $username = 'host';
-    //$password = 'password';
-
-    try {
-        $db = new PDO($dsn, $username);
-        //$db = new PDO($dsn, $username, $password);
-    } 
-    catch (PDOException $e) {
-        $error_message = "Database Error: ";
-        $error_message .= $e->getMessage();
-        include('error.php');
-        
-    exit();
-    }
+require('database.php');
 
     $query = 'SELECT * FROM todoitems ORDER BY ItemNum';
     $statement = $db->prepare($query);
@@ -22,7 +8,6 @@ $dsn = 'mysql:host=localhost;dbname=todolist';
     $todoitems = $statement->fetchAll();
     $statement->closeCursor();
 
-    $item_num = filter_input(INPUT_POST, 'item_num', FILTER_VALIDATE_INT);
 
     if ($item_num) {
         $query = 'DELETE FROM todoitems 
@@ -53,13 +38,11 @@ $dsn = 'mysql:host=localhost;dbname=todolist';
 </head>
 
 <body>
+    <main>
     <h1>ToDo List</h1>
 <div>
     <?php if(!empty($todoitems)) { ?>
     <?php foreach ($todoitems as $item) : ?>
-</div>
-
-<div>
     <p><?php echo $item['Title']; ?></p>
     <p><?php echo $item['Description']; ?></p>
 </div>
@@ -72,6 +55,13 @@ $dsn = 'mysql:host=localhost;dbname=todolist';
 </div>
 
 <div>
+<?php endforeach; ?> 
+<?php } else { ?>
+    <p>No to do list items exist yet.</p>
+<?php } ?>
+</div>
+
+<div>
     <form method="post">
             <label>Title:</label>
                 <input type="text" name="title" maxlength="20" placeholder="Title" required>
@@ -80,5 +70,6 @@ $dsn = 'mysql:host=localhost;dbname=todolist';
             <button class="add-button bold">Add<br>Item</button>
     </form>   
 </div>
+</main>
 </body>
 </html>
